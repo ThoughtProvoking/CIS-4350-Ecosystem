@@ -21,7 +21,7 @@ public class Main extends SimpleApplication {
         // create the terrain
         Terrain t = new Terrain(this);
         // create the water
-        Water w = new Water(this);
+//        Water w = new Water(this);
     }
 
     @Override

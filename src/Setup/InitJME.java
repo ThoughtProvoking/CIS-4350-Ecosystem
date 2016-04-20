@@ -8,6 +8,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
 import com.jme3.system.AppSettings;
+import com.jme3.texture.Texture;
 import com.jme3.util.SkyFactory;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -15,7 +16,8 @@ import java.awt.Toolkit;
 public class InitJME {
 
     private static SimpleApplication sa;
-    public static Material wireframe, mat;
+    private static Texture terrain;
+    public static Material wireframe, mat, test, splat;
     public static BulletAppState bullet;
     public static DirectionalLight sun;
 
@@ -51,9 +53,19 @@ public class InitJME {
         // Terrain wireframe
         wireframe = new Material(sa.getAssetManager(), "Common/MatDefs/Terrain/TerrainLighting.j3md");
         wireframe.getAdditionalRenderState().setWireframe(true);
-
+        
         // Terrain material
         mat = sa.getAssetManager().loadMaterial("Textures/Terrain/Rocky/Rocky.j3m");
+
+        // Terrain texture splatting
+        splat = new Material(sa.getAssetManager(), "Common/MatDefs/Terrain/Terrain.j3md");
+        terrain = sa.getAssetManager().loadTexture("Textures/Terrain/splat/mountains1024.jpg");
+        terrain.setWrap(Texture.WrapMode.Repeat);
+        splat.setTexture("Tex1", terrain);
+        
+        // For test objects
+        test = new Material(sa.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        test.setColor("Color", ColorRGBA.Blue);
     }
 
     /*

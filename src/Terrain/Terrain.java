@@ -20,12 +20,14 @@ public class Terrain implements NeighbourFinder {
     private static final float RANGE = 5.0f;
     private static final float PERSISTENCE = 0.5f;  // roughness
     private static final float NORMALIZER = (float) SIZE * 2.0f;
-    public static final float WATER_LEVEL = NORMALIZER / 25.0f;
+    public static final float WATER_LEVEL = NORMALIZER / 50.0f;
     private static final int N = 2; // total number of TerrainQuads is N^2
     private SimpleApplication sa;
-    private ArrayList<AbstractHeightMap> heightmap = new ArrayList<AbstractHeightMap>();
+    private ArrayList<float[]> heightmap = new ArrayList<float[]>();
     private ArrayList<TerrainQuad> terrain = new ArrayList<TerrainQuad>();
     private Node terrainNode = new Node();
+    // Supposedly helps with LOD of multiple TerrainQuads
+    private MultiTerrainLodControl mlod;
 
     /*
      * Beginning of the terrain generation
@@ -34,17 +36,18 @@ public class Terrain implements NeighbourFinder {
     public Terrain(SimpleApplication app) {
         sa = app;
         sa.getRootNode().attachChild(terrainNode);
+        mlod = new MultiTerrainLodControl(sa.getCamera());
         initHeightMap();
     }
 
     /*
-     * Generates the heightmaps
+     * Generates the heightmaps and places the float[] data into ArrayList
      */
     private void initHeightMap() {
         try {
             for (int i = 0; i < Math.pow(N, 2); i++) {
                 AbstractHeightMap h = new MidpointDisplacementHeightMap(SIZE, RANGE, PERSISTENCE);
-                heightmap.add(h);
+                heightmap.add(h.getHeightMap());
             }
         } catch (Exception e) {
         }
@@ -56,97 +59,69 @@ public class Terrain implements NeighbourFinder {
      * Sets the height to be the average of all of the heights
      */
     private void fixEdges() {
-        float[] currentHeightMap, rightHeightMap = null, bottomHeightMap = null, diagonalHeightMap = null;
-        int index;
+        float[] right = null, bottom = null, diagonal = null;
+        int index, i = 0, j = 0;   // i,j: Help translate the terrains properly
+        boolean lastCol = true, lastRow = true;
 
-        for (AbstractHeightMap h : heightmap) {
+        for (float[] h : heightmap) {
             index = heightmap.indexOf(h);
-            // Used same logic as Maze assignment: just check right and bottom edges
-            currentHeightMap = h.getHeightMap();
             if (index % N != N - 1) {
-                // No right neighbor if on rightmost side
-                rightHeightMap = getRightMap(index).getHeightMap();
+                // Not in last column
+                right = getRightMap(index);
+                lastCol = false;
             }
-            if (index < Math.pow(N, 2) - N) {
-                // No bottom neighbor if on bottom row
-                bottomHeightMap = getDownMap(index).getHeightMap();
+            if (index < N * (N - 1)) {
+                // Not in last row
+                bottom = getDownMap(index);
+                lastRow = false;
             }
-            if (index % N != N - 1 && index < Math.pow(N, 2) - N) {
-                // No diagonal neighbor if on bottom row or on right most side
-                diagonalHeightMap = getDiagMap(index).getHeightMap();
+            if (!lastCol && !lastRow) {
+                // Have diagonal neighbor iff have right and bottom neighbors
+                diagonal = getDiagMap(index);
             }
 
-            for (int i = 0; i < SIZE; i++) {
-                if (i < SIZE - 1) {
-                    // Not the bottom right corner
-                    if (currentHeightMap[(i + 1) * SIZE - 1] != rightHeightMap[i * SIZE]) {
-                        // Fix right edge if not equal
-                        currentHeightMap[(i + 1) * SIZE - 1] =
-                                (currentHeightMap[(i + 1) * SIZE - 1] + rightHeightMap[i * SIZE]) / 2;
-                        rightHeightMap[i * SIZE] = currentHeightMap[(i + 1) * SIZE - 1];
-                    }
-
-                    if (currentHeightMap[SIZE * (SIZE - 1) + i] != bottomHeightMap[i]) {
-                        // Fix bottom edge if not equal
-                        currentHeightMap[SIZE * (SIZE - 1) + i] =
-                                (currentHeightMap[SIZE * (SIZE - 1) + i] + bottomHeightMap[i]) / 2;
-                        bottomHeightMap[i] = currentHeightMap[SIZE * (SIZE - 1) + i];
-                    }
-                } else {
-                    // reached the corner
-                    currentHeightMap[SIZE * (SIZE - 1) + i] =
-                            (currentHeightMap[SIZE * (SIZE - 1) + i] + rightHeightMap[i * SIZE]
-                            + bottomHeightMap[i] + diagonalHeightMap[0]) / 4;
-                    rightHeightMap[i * SIZE] = currentHeightMap[SIZE * (SIZE - 1) + i];
-                    bottomHeightMap[i] = currentHeightMap[SIZE * (SIZE - 1) + i];
-                    diagonalHeightMap[0] = currentHeightMap[SIZE * (SIZE - 1) + i];
-                }
+            initTerrain(index, i, j);
+            j = (j + 1) % N;
+            if (j == 0) {
+                // If j restarts counting from zero, new row -> increment i
+                // Should ignore the first time j = 0;
+                i++;
             }
-            initTerrain();
         }
     }
 
     /*
-     * Gets the heightmap of bottom, right, and diagonal neighbors to fix the edges
+     * Gets the heightmap data of bottom, right, and diagonal neighbors to fix the edges
      */
-    private AbstractHeightMap getDiagMap(int i) {
+    private float[] getDiagMap(int i) {
         return heightmap.get(i + N + 1);
     }
 
-    private AbstractHeightMap getRightMap(int i) {
+    private float[] getRightMap(int i) {
         return heightmap.get(i + 1);
     }
 
-    private AbstractHeightMap getDownMap(int i) {
+    private float[] getDownMap(int i) {
         return heightmap.get(i + N);
     }
 
     /*
-     * Creates the TerrainQuads
+     * Creates the TerrainQuad
      */
-    private void initTerrain() {
-        // Supposedly helps with LOD of multiple TerrainQuads
-        MultiTerrainLodControl mlod = new MultiTerrainLodControl(sa.getCamera());
-        int k = 0;
+    private void initTerrain(int i, int j, int k) {
+        TerrainQuad t = new TerrainQuad("Terrain" + i, PATCH_SIZE, SIZE, heightmap.get(i));
+        t.setMaterial(InitJME.mat);
+        t.setLocalTranslation(j * SIZE, 0, k * SIZE);
+        t.setNeighbourFinder(this);
+        mlod.addTerrain(t);
+        terrainNode.attachChild(t);
+        terrain.add(t);
 
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                TerrainQuad t = new TerrainQuad("Terrain" + k, PATCH_SIZE, SIZE, heightmap.get(k).getHeightMap());
-                t.setMaterial(InitJME.wireframe);
-                t.setLocalTranslation(i * SIZE, 0, j * SIZE);
-                t.setNeighbourFinder(this);
-                mlod.addTerrain(t);
-                terrainNode.attachChild(t);
-                terrain.add(t);
-
-                // Terrain physics
-                CollisionShape cShape = CollisionShapeFactory.createMeshShape((Node) t);
-                RigidBodyControl terrainPhys = new RigidBodyControl(cShape, 0.0f);
-                t.addControl(terrainPhys);
-                InitJME.bullet.getPhysicsSpace().add(terrainPhys);
-                k++;
-            }
-        }
+        // Terrain physics
+        CollisionShape cShape = CollisionShapeFactory.createMeshShape((Node) t);
+        RigidBodyControl terrainPhys = new RigidBodyControl(cShape, 0.0f);
+        t.addControl(terrainPhys);
+        InitJME.bullet.getPhysicsSpace().add(terrainPhys);
     }
 
     /*
