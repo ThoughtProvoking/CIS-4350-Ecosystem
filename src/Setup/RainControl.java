@@ -25,6 +25,7 @@ public class RainControl extends AbstractControl implements ActionListener {
     public RainControl(SimpleApplication app) {
         sa = app;
         sa.getRootNode().attachChild(rainNode);
+        sa.getRenderManager().preloadScene(rain);
     }
 
     @Override
@@ -36,33 +37,36 @@ public class RainControl extends AbstractControl implements ActionListener {
     }
     
     private void makeItRain() {
-        rain = new ParticleEmitter("Rain", ParticleMesh.Type.Point, 300);
+        rain = new ParticleEmitter("Rain", ParticleMesh.Type.Triangle, 30);
+        rain.setStartColor(ColorRGBA.LightGray);
+        rain.setStartSize(.5f);
+        rain.setEndSize(.5f);
+        rain.setFacingVelocity(true);
+        rain.setParticlesPerSec(10000000);
+        rain.setGravity(0, 80f, 0);
+        rain.setLowLife(.5f);
+        rain.setHighLife(.75f);
+        rain.getParticleInfluencer().setInitialVelocity(new Vector3f(0, -8, 0));
+        rain.getParticleInfluencer().setVelocityVariation(-.3f);
+        rain.setShape(new EmitterSphereShape(Vector3f.ZERO, 10));
+        rain.setImagesX(1);
+        rain.setImagesY(1);
+        rain.setLocalTranslation(0, 265, 0);
         rain.setMaterial(InitJME.rain);
-        rain.setStartColor(ColorRGBA.Red);
-        rain.setStartSize(1f);
-        rain.setGravity(0, -1f, 0);
-        rain.getParticleInfluencer().setVelocityVariation(.5f);
-        rain.getParticleInfluencer().setInitialVelocity(new Vector3f(0, 0, 0));
-        rain.setParticlesPerSec(30);
-        rain.setLocalTranslation(0, 270, 0);
-        rain.setShape(new EmitterSphereShape(new Vector3f(0, 255, 0), 5));
-        rain.addControl(this);
         rainNode.attachChild(rain);
-
-        RigidBodyControl rainPhys = new RigidBodyControl(1f);
-        rain.addControl(rainPhys);
-        InitJME.bullet.getPhysicsSpace().add(rainPhys);
+//        RigidBodyControl rainPhys = new RigidBodyControl(1f);
+//        rain.addControl(rainPhys);
+//        InitJME.bullet.getPhysicsSpace().add(rainPhys);
     }
 
     public void onAction(String name, boolean isPressed, float tpf) {
         if (isPressed && !raining) {
             raining = true;
             makeItRain();
-        } else {
+        } else if (isPressed && raining) {
             raining = false;
             rain.removeControl(this);
             rainNode.detachChild(rain);
         }
     }
 }
-

@@ -24,7 +24,8 @@ public class Main extends SimpleApplication {
         Terrain t = new Terrain(this);
         // create the water
 //        Water w = new Water(this);
-        
+        // Rain control
+
         // Manully activate the rain
         inputManager.addMapping("Rain", new KeyTrigger(KeyInput.KEY_R));
         inputManager.addListener(new RainControl(this), "Rain");
