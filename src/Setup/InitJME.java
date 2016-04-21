@@ -17,7 +17,7 @@ public class InitJME {
 
     private static SimpleApplication sa;
     private static Texture grass, dirt, rock;
-    public static Material wireframe, forest, desert;
+    public static Material wireframe, forest, rain;
     public static BulletAppState bullet;
     public static DirectionalLight sun;
 
@@ -70,8 +70,9 @@ public class InitJME {
         forest.setTexture("DiffuseMap_2", rock);
         forest.setFloat("DiffuseMap_2_scale", 128f);
         
-        // Desert
-
+        // Rain material
+        rain = new Material(sa.getAssetManager(), "Common/MatDefs/Misc/Particle.j3md");
+        rain.setTexture("Texture", sa.getAssetManager().loadTexture("Effects/Explosion/spark.png"));
     }
 
     /*

@@ -2,8 +2,10 @@ package Main;
 
 import Terrain.Terrain;
 import Setup.InitJME;
-import Water.Water;
+import Setup.RainControl;
 import com.jme3.app.SimpleApplication;
+import com.jme3.input.KeyInput;
+import com.jme3.input.controls.KeyTrigger;
 
 public class Main extends SimpleApplication {
 
@@ -22,6 +24,10 @@ public class Main extends SimpleApplication {
         Terrain t = new Terrain(this);
         // create the water
 //        Water w = new Water(this);
+        
+        // Manully activate the rain
+        inputManager.addMapping("Rain", new KeyTrigger(KeyInput.KEY_R));
+        inputManager.addListener(new RainControl(this), "Rain");
     }
 
     @Override

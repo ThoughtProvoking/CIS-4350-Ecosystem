@@ -113,7 +113,7 @@ public class Terrain implements NeighbourFinder {
             j = (j + 1) % N;
             if (j == 0) {
                 // If j restarts counting from zero, new row -> increment i
-                // Should ignore the first time j = 0;
+                 // Should ignore the first time j = 0;
                 i++;
             }
         }
