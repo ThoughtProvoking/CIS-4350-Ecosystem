@@ -37,6 +37,7 @@ public class RainControl extends AbstractControl implements ActionListener {
 
     /*
      * Randomly generate or stop rain if random number < 4300
+     * Follow the camera if raining
      */
     @Override
     protected void controlUpdate(float tpf) {
@@ -81,6 +82,7 @@ public class RainControl extends AbstractControl implements ActionListener {
         rain.setImagesX(1);
         rain.setImagesY(1);
         rain.setLocalTranslation(sa.getCamera().getLocation().add(0, 15, 0));
+        rain.addControl(this);
         rain.setMaterial(InitJME.rain);
         rainNode.attachChild(rain);
     }

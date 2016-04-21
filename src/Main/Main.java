@@ -3,12 +3,13 @@ package Main;
 import Terrain.Terrain;
 import Setup.InitJME;
 import Setup.RainControl;
+import Water.Water;
 import com.jme3.app.SimpleApplication;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.KeyTrigger;
 
 public class Main extends SimpleApplication {
-
+    
     public static void main(String[] args) {
         Main app = new Main();
         // configures game screen
@@ -23,7 +24,7 @@ public class Main extends SimpleApplication {
         // create the terrain
         Terrain t = new Terrain(this);
         // create the water
-//        Water w = new Water(this);
+        Water w = new Water(this);
 
         // Manully activate/deactivate the rain
         inputManager.addMapping("Rain", new KeyTrigger(KeyInput.KEY_R));

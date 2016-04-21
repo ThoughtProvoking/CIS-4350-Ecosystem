@@ -25,7 +25,7 @@ public class Water {
      */
     public Water(SimpleApplication app) {
         sa = app;
-        water = new WaterFilter(app.getRootNode(), lightDir);
+        water = new WaterFilter(sa.getRootNode(), lightDir);
         configure();
         initFilter();
         initSound();

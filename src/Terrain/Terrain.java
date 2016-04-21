@@ -20,7 +20,7 @@ public class Terrain implements NeighbourFinder {
     private static final float RANGE = 5.0f;
     private static final float PERSISTENCE = 0.5f;  // roughness
     private static final float NORMALIZER = (float) SIZE * 1.0f;
-    public static final float WATER_LEVEL = NORMALIZER / 50.0f;
+    public static final float WATER_LEVEL = NORMALIZER / 25.0f;
     private static final int N = 2; // total number of TerrainQuads is N^2
     private SimpleApplication sa;
     private ArrayList<float[]> heightmap = new ArrayList<float[]>();
