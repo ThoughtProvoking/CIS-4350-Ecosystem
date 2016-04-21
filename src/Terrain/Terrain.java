@@ -19,7 +19,7 @@ public class Terrain implements NeighbourFinder {
     private static final int PATCH_SIZE = 33;
     private static final float RANGE = 5.0f;
     private static final float PERSISTENCE = 0.5f;  // roughness
-    private static final float NORMALIZER = (float) SIZE * 2.0f;
+    private static final float NORMALIZER = (float) SIZE * 1.0f;
     public static final float WATER_LEVEL = NORMALIZER / 50.0f;
     private static final int N = 2; // total number of TerrainQuads is N^2
     private SimpleApplication sa;
@@ -57,27 +57,56 @@ public class Terrain implements NeighbourFinder {
     /*
      * Fixes the heights of the edges
      * Sets the height to be the average of all of the heights
+     * DOES NOT WORK, for some reason the sides and values are wrong
      */
     private void fixEdges() {
-        float[] right = null, bottom = null, diagonal = null;
-        int index, i = 0, j = 0;   // i,j: Help translate the terrains properly
-        boolean lastCol = true, lastRow = true;
+        float[] right = null, bottom = null;
+        int index = 0, i = 0, j = 0;   // i,j: Help translate the terrains properly
+        boolean haveRight = false, haveBottom = false;
 
         for (float[] h : heightmap) {
             index = heightmap.indexOf(h);
-            if (index % N != N - 1) {
+            if (index % N < N - 1) {
                 // Not in last column
-                right = getRightMap(index);
-                lastCol = false;
+                right = heightmap.get(index + 1);
+                haveRight = true;
             }
             if (index < N * (N - 1)) {
                 // Not in last row
-                bottom = getDownMap(index);
-                lastRow = false;
+                bottom = heightmap.get(index + N);
+                haveBottom = true;
             }
-            if (!lastCol && !lastRow) {
-                // Have diagonal neighbor iff have right and bottom neighbors
-                diagonal = getDiagMap(index);
+
+            for (int k = 0; k < SIZE; k++) {
+                if (k == SIZE - 1 && haveBottom && haveRight) {
+                    // At the corner and have all neighbors
+                    // Could also check if values are equal but very low possibility
+                    // Should never reach other two if-statements because this corner
+                    // is the last point
+                    // heightmap.get(index + N + 1): diagonal neighbor
+                    h[SIZE * SIZE - 1] = (h[SIZE * SIZE - 1] + right[SIZE * (SIZE - 1)]
+                            + bottom[SIZE - 1] + heightmap.get(index + N + 1)[0]) / 4;
+                    right[SIZE * (SIZE - 1)] = h[SIZE * SIZE - 1];
+                    bottom[SIZE - 1] = h[SIZE * SIZE - 1];
+                    heightmap.get(index + N + 1)[0] = h[SIZE * SIZE - 1];
+                    break;
+                }
+                if (haveRight) {    // right edge
+                    h[(k + 1) * SIZE - 1] = (h[(k + 1) * SIZE - 1] + right[k * SIZE]) / 2;
+                    right[k * SIZE] = h[(k + 1) * SIZE - 1];
+                }
+                if (haveBottom) {   // bottom edge
+                    h[SIZE * (SIZE - 1) + k] = (h[SIZE * (SIZE - 1) + k] + bottom[k]) / 2;
+                    bottom[k] = h[SIZE * (SIZE - 1) + k];
+                }
+            }
+            haveRight = false;
+            haveBottom = false;
+            if (haveRight) {
+                heightmap.set(index + 1, right);
+            }
+            if (haveBottom) {
+                heightmap.set(index + N, bottom);
             }
 
             initTerrain(index, i, j);
@@ -91,27 +120,12 @@ public class Terrain implements NeighbourFinder {
     }
 
     /*
-     * Gets the heightmap data of bottom, right, and diagonal neighbors to fix the edges
-     */
-    private float[] getDiagMap(int i) {
-        return heightmap.get(i + N + 1);
-    }
-
-    private float[] getRightMap(int i) {
-        return heightmap.get(i + 1);
-    }
-
-    private float[] getDownMap(int i) {
-        return heightmap.get(i + N);
-    }
-
-    /*
      * Creates the TerrainQuad
      */
     private void initTerrain(int i, int j, int k) {
         TerrainQuad t = new TerrainQuad("Terrain" + i, PATCH_SIZE, SIZE, heightmap.get(i));
-        t.setMaterial(InitJME.mat);
-        t.setLocalTranslation(j * SIZE, 0, k * SIZE);
+        t.setMaterial(InitJME.forest);
+        t.setLocalTranslation(k * (SIZE - 1), 0, j * (SIZE - 1));
         t.setNeighbourFinder(this);
         mlod.addTerrain(t);
         terrainNode.attachChild(t);

@@ -16,8 +16,8 @@ import java.awt.Toolkit;
 public class InitJME {
 
     private static SimpleApplication sa;
-    private static Texture terrain;
-    public static Material wireframe, mat, test, splat;
+    private static Texture grass, dirt, rock;
+    public static Material wireframe, forest, desert;
     public static BulletAppState bullet;
     public static DirectionalLight sun;
 
@@ -53,19 +53,25 @@ public class InitJME {
         // Terrain wireframe
         wireframe = new Material(sa.getAssetManager(), "Common/MatDefs/Terrain/TerrainLighting.j3md");
         wireframe.getAdditionalRenderState().setWireframe(true);
-        
-        // Terrain material
-        mat = sa.getAssetManager().loadMaterial("Textures/Terrain/Rocky/Rocky.j3m");
 
-        // Terrain texture splatting
-        splat = new Material(sa.getAssetManager(), "Common/MatDefs/Terrain/Terrain.j3md");
-        terrain = sa.getAssetManager().loadTexture("Textures/Terrain/splat/mountains1024.jpg");
-        terrain.setWrap(Texture.WrapMode.Repeat);
-        splat.setTexture("Tex1", terrain);
+        // Forest texture splatting
+        forest = new Material(sa.getAssetManager(), "Common/MatDefs/Terrain/TerrainLighting.j3md");
+        forest.setTexture("AlphaMap", sa.getAssetManager().loadTexture("Textures/Terrain/splat/alphamap.png"));
+        grass = sa.getAssetManager().loadTexture("Textures/Terrain/splat/grass.jpg");
+        grass.setWrap(Texture.WrapMode.Repeat);
+        forest.setTexture("DiffuseMap", grass);
+        forest.setFloat("DiffuseMap_0_scale", 64f);
+        dirt = sa.getAssetManager().loadTexture("Textures/Terrain/splat/dirt.jpg");
+        dirt.setWrap(Texture.WrapMode.Repeat);
+        forest.setTexture("DiffuseMap_1", dirt);
+        forest.setFloat("DiffuseMap_1_scale", 32f);
+        rock = sa.getAssetManager().loadTexture("Textures/Terrain/splat/road.jpg");
+        rock.setWrap(Texture.WrapMode.Repeat);
+        forest.setTexture("DiffuseMap_2", rock);
+        forest.setFloat("DiffuseMap_2_scale", 128f);
         
-        // For test objects
-        test = new Material(sa.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-        test.setColor("Color", ColorRGBA.Blue);
+        // Desert
+
     }
 
     /*
@@ -96,7 +102,7 @@ public class InitJME {
         bullet = new BulletAppState();
         sa.getStateManager().attach(bullet);
     }
-    
+
     /*
      * Initialize the sky background
      */
