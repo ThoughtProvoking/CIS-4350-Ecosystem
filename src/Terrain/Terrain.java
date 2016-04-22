@@ -2,6 +2,7 @@ package Terrain;
 
 import Setup.InitJME;
 import com.jme3.app.SimpleApplication;
+import com.jme3.audio.AudioNode;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.util.CollisionShapeFactory;
@@ -42,7 +43,7 @@ public class Terrain implements NeighbourFinder {
             sa.getRenderManager().preloadScene(t);
         }
         initHeightMap();
-//        Flora flora = new Flora(sa, terrain);
+        Flora flora = new Flora(sa, terrain);
     }
 
     /*
@@ -52,7 +53,7 @@ public class Terrain implements NeighbourFinder {
         try {
             for (int i = 0; i < Math.pow(N, 2); i++) {
                 AbstractHeightMap h = new MidpointDisplacementHeightMap(SIZE, RANGE, PERSISTENCE);
-                h.flatten((byte) .5);
+                h.flatten((byte) .75);
                 h.smooth(.7f);
                 h.normalizeTerrain(NORMALIZER);
                 h.erodeTerrain();
@@ -145,6 +146,15 @@ public class Terrain implements NeighbourFinder {
         RigidBodyControl terrainPhys = new RigidBodyControl(cShape, 0.0f);
         t.addControl(terrainPhys);
         InitJME.bullet.getPhysicsSpace().add(terrainPhys);
+        
+        initNatureSound();
+    }
+    
+    private void initNatureSound() {
+        AudioNode nature = new AudioNode(sa.getAssetManager(), "Sound/Environment/Nature.ogg");
+        nature.setLooping(true);
+        nature.setVolume(.5f);
+        sa.getAudioRenderer().playSource(nature);
     }
 
     /*

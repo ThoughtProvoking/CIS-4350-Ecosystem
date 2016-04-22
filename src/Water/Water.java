@@ -90,6 +90,7 @@ public class Water {
     private void initSound() {
         AudioNode waves = new AudioNode(sa.getAssetManager(), "Sound/Environment/Ocean Waves.ogg", false);
         waves.setLooping(true);
+        waves.setVolume(.5f);
         sa.getAudioRenderer().playSource(waves);
     }
 }

@@ -85,7 +85,7 @@ public class InitJME {
      */
     private static void initLights() {
         sun = new DirectionalLight();
-        sun.setDirection((new Vector3f(-0.5f, -0.5f, -0.5f)).normalizeLocal());
+        sun.setDirection((new Vector3f(-0.5f, -0.8f, -0.5f)).normalizeLocal());
         sun.setColor(ColorRGBA.White);
         sa.getRootNode().addLight(sun);
     }

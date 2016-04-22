@@ -1,6 +1,7 @@
 package Setup;
 
 import Main.Main;
+import com.jme3.audio.AudioNode;
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.effect.ParticleMesh;
 import com.jme3.effect.shapes.EmitterSphereShape;
@@ -45,6 +46,7 @@ public class RainControl extends AbstractControl implements ActionListener {
             if (!raining) {
                 raining = true;
                 makeItRain();
+                initRainDrop();
             } else {
                 raining = false;
                 rain.removeControl(this);
@@ -67,21 +69,22 @@ public class RainControl extends AbstractControl implements ActionListener {
      * https://wiki.jmonkeyengine.org/doku.php/jme3:advanced:particle_emitters
      */
     private void makeItRain() {
-        rain = new ParticleEmitter("Rain", ParticleMesh.Type.Triangle, 1200);
+        rain = new ParticleEmitter("Rain", ParticleMesh.Type.Triangle, 6000);
         rain.setStartColor(ColorRGBA.LightGray);
         rain.setStartSize(.5f);
         rain.setEndSize(.5f);
         rain.setFacingVelocity(true);
         rain.setParticlesPerSec(600);
         rain.setGravity(0, 160f, 0);
-        rain.setLowLife(.3f);
-        rain.setHighLife(.5f);
+        rain.setLowLife(1.1f);
+        rain.setHighLife(1.5f);
         rain.getParticleInfluencer().setInitialVelocity(new Vector3f(0, -8, 0));
         rain.getParticleInfluencer().setVelocityVariation(-.3f);
         rain.setShape(new EmitterSphereShape(Vector3f.ZERO, 20));
         rain.setImagesX(1);
         rain.setImagesY(1);
         rain.setLocalTranslation(sa.getCamera().getLocation().add(0, 15, 0));
+        System.out.println(rain.getLocalTranslation());
         rain.addControl(this);
         rain.setMaterial(InitJME.rain);
         rainNode.attachChild(rain);
@@ -96,11 +99,18 @@ public class RainControl extends AbstractControl implements ActionListener {
             if (!raining) {
                 raining = true;
                 makeItRain();
+                initRainDrop();
             } else {
                 raining = false;
                 rain.removeControl(this);
                 rainNode.detachChild(rain);
             }
         }
+    }
+    
+    private void initRainDrop() {
+        AudioNode rain = new AudioNode(sa.getAssetManager(), "Sound/Environment/River.ogg");
+        rain.setLooping(true);
+        sa.getAudioRenderer().playSource(rain);
     }
 }
