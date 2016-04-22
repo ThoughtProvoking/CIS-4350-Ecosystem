@@ -17,7 +17,7 @@ public class InitJME {
 
     private static SimpleApplication sa;
     private static Texture grass, dirt, rock;
-    public static Material wireframe, forest, rain, grassMat;
+    public static Material wireframe, forest, rain;
     public static BulletAppState bullet;
     public static DirectionalLight sun;
 
@@ -54,7 +54,7 @@ public class InitJME {
         wireframe = new Material(sa.getAssetManager(), "Common/MatDefs/Terrain/TerrainLighting.j3md");
         wireframe.getAdditionalRenderState().setWireframe(true);
 
-        // Forest texture splatting
+        // Texture splatting
         forest = new Material(sa.getAssetManager(), "Common/MatDefs/Terrain/TerrainLighting.j3md");
         forest.setTexture("AlphaMap", sa.getAssetManager().loadTexture("Textures/Terrain/splat/alphamap.png"));
         grass = sa.getAssetManager().loadTexture("Textures/Terrain/splat/grass.jpg");
@@ -70,8 +70,7 @@ public class InitJME {
         forest.setTexture("DiffuseMap_2", rock);
         forest.setFloat("DiffuseMap_2_scale", 128f);
 
-        // Grass material for Forester class
-        grassMat = new Material(sa.getAssetManager(), "MatDefs/grassBase.j3md");
+        // Material for vegetation system
 
         // Rain material
         rain = new Material(sa.getAssetManager(), "Common/MatDefs/Misc/Particle.j3md");

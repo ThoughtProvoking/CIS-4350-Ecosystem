@@ -41,7 +41,7 @@ public class Terrain implements NeighbourFinder {
             sa.getRenderManager().preloadScene(t);
         }
         initHeightMap();
-        Flora flora = new Flora(sa, heightmap);
+        Flora flora = new Flora(sa, terrain);
     }
 
     /*
