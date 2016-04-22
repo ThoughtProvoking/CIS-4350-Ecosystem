@@ -19,8 +19,9 @@ public class Terrain implements NeighbourFinder {
     private static final int PATCH_SIZE = 33;
     private static final float RANGE = 5.0f;
     private static final float PERSISTENCE = 0.5f;  // roughness
-    private static final float NORMALIZER = (float) SIZE * 1.0f;
-    public static final float WATER_LEVEL = NORMALIZER / 25.0f;
+    private static final float NORMALIZER = (float) SIZE / 2.0f;
+    public static final float WATER_LEVEL = NORMALIZER / 3.0f;
+    public static final float MOUNTAIN_BASE = 150;
     private static final int N = 2; // total number of TerrainQuads is N^2
     private SimpleApplication sa;
     private ArrayList<float[]> heightmap = new ArrayList<float[]>();
@@ -41,7 +42,7 @@ public class Terrain implements NeighbourFinder {
             sa.getRenderManager().preloadScene(t);
         }
         initHeightMap();
-        Flora flora = new Flora(sa, terrain);
+//        Flora flora = new Flora(sa, terrain);
     }
 
     /*
@@ -51,6 +52,10 @@ public class Terrain implements NeighbourFinder {
         try {
             for (int i = 0; i < Math.pow(N, 2); i++) {
                 AbstractHeightMap h = new MidpointDisplacementHeightMap(SIZE, RANGE, PERSISTENCE);
+                h.flatten((byte) .5);
+                h.smooth(.7f);
+                h.normalizeTerrain(NORMALIZER);
+                h.erodeTerrain();
                 heightmap.add(h.getHeightMap());
             }
         } catch (Exception e) {
