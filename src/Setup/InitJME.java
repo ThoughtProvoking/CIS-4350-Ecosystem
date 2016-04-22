@@ -16,8 +16,8 @@ import java.awt.Toolkit;
 public class InitJME {
 
     private static SimpleApplication sa;
-    private static Texture grass, dirt, rock;
-    public static Material wireframe, forest, rain;
+    private static Texture grass, dirt, rock, vegColor, vegNoise;
+    public static Material wireframe, forest, rain, vegGrass;
     public static BulletAppState bullet;
     public static DirectionalLight sun;
 
@@ -71,6 +71,11 @@ public class InitJME {
         forest.setFloat("DiffuseMap_2_scale", 128f);
 
         // Material for vegetation system
+        vegGrass = new Material(sa.getAssetManager(), "Resources/MatDefs/Grass/grassBase.j3md");
+        vegColor = sa.getAssetManager().loadTexture("Resources/Textures/Grass/grass.png");
+        vegGrass.setTexture("ColorMap", vegColor);
+        vegNoise = sa.getAssetManager().loadTexture("Resources/Textures/Grass/noise.png");
+        vegGrass.setTexture("AlphaNoiseMap", vegNoise);
 
         // Rain material
         rain = new Material(sa.getAssetManager(), "Common/MatDefs/Misc/Particle.j3md");

@@ -36,12 +36,12 @@ public class RainControl extends AbstractControl implements ActionListener {
     }
 
     /*
-     * Randomly generate or stop rain if random number < 4300
+     * Randomly generate or stop rain if random number under threshold
      * Follow the camera if raining
      */
     @Override
     protected void controlUpdate(float tpf) {
-        if (rand.nextInt() < 430000) {
+        if (rand.nextInt(10000) < .1) {
             if (!raining) {
                 raining = true;
                 makeItRain();
@@ -96,7 +96,6 @@ public class RainControl extends AbstractControl implements ActionListener {
             if (!raining) {
                 raining = true;
                 makeItRain();
-                System.out.println(rain.getLocalTranslation());
             } else {
                 raining = false;
                 rain.removeControl(this);
